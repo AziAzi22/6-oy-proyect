@@ -9,6 +9,7 @@ const sequelize = new Sequelize({
   username: "postgres",
   password: String(process.env.DB_PASSWORD as string),
   database: String(process.env.DB_NAME as string),
+  logging: false,
 });
 
 sequelize
@@ -16,6 +17,6 @@ sequelize
   .then(() => console.log("Connected to database"))
   .catch((error) => console.log(error.message));
 
-sequelize.sync({ force: false });
+// sequelize.sync({ force: false });
 
 export default sequelize;

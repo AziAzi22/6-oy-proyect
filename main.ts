@@ -2,6 +2,7 @@ import express from "express";
 import cors  from "cors";
 import dotenv from "dotenv";
 import studentRouter from "./router/student.routes.js";
+import botRouter from "./router/bot.routes.js";
 dotenv.config();    
 
 
@@ -13,6 +14,7 @@ app.use(express.json());
 /// routers
 
 app.use(studentRouter)
+app.use(botRouter)
 
 const PORT = process.env.PORT || 3000; 
 
