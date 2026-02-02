@@ -95,3 +95,29 @@ export const getMessageFromToday = async (
     });
   }
 };
+
+
+
+export const getMessageLastTenDay = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<Response | void> => {
+  try {
+    const currentDate = new Date();
+
+    currentDate.setUTCDate(currentDate.getDate() - 10);
+
+    const messages = await Bot.findAll({
+      where: { createdAt: { [Op.gte]: currentDate } },
+    });
+
+    res.status(200).json({
+      messages,
+    });
+  } catch (error: any) {
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+};
