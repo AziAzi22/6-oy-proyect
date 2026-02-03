@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { Student } from "../model/student.model.js";
 import type { CreateStudentDto, UpdateStudentDto } from "../dto/student.dto.js";
+import { Op } from "sequelize";
+import sequelize from "../config/config.js";
 
 Student.sync({ force: false });
 
@@ -12,9 +14,76 @@ export const getAllStudnets = async (
   next: NextFunction,
 ): Promise<Response | void> => {
   try {
-    const students = await Student.findAll();
+    const page = parseInt(req.query.page as string) | 1;
 
-    res.status(200).json(students);
+    const limit = parseInt(req.query.limit as string) | 1;
+
+    const offset = (page - 1) * limit;
+
+    const search = (req.query.search as string)?.trim() || "";
+
+    let whereClause = {};
+
+    if (search) {
+      whereClause = {
+        [Op.or]: [
+          { full_name: { [Op.iLike]: `%${search}%` } },
+          { phone_number: { [Op.iLike]: `%${search}%` } },
+          { profession: { [Op.iLike]: `%${search}%` } },
+          { parent_name: { [Op.iLike]: `%${search}%` } },
+        ],
+      };
+    }
+
+    const { count, rows: students } = await Student.findAndCountAll({
+      where: whereClause,
+      offset,
+      limit,
+      raw: true,
+    });
+
+    const totalPage = Math.ceil(count / limit);
+
+    res.status(200).json({
+      totalPage,
+      prev: page > 1 ? { page: page - 1, limit } : undefined,
+      next: totalPage > page ? { page: page + 1, limit } : undefined,
+    });
+  } catch (error: any) {
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+// get statistics
+
+export const statistics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<Response | void> => {
+  try {
+    const stat = await Student.findAll({
+      attributes: [
+        [sequelize.literal(`DATE_TRUNC('month', "joinedAt")`), "month"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "totalJoined"],
+        [
+          sequelize.literal(
+            `SUM(case when "leftAt" is not null then 1 else 0 end)`,
+          ),
+          "totalLeft",
+        ],
+      ],
+      group: [sequelize.literal(`DATE_TRUNC('month', 'joinedAt')`)] as any,
+      order: [
+        [sequelize.literal(`DATE_TRUNC('month', 'joinedAt')`)],
+        "ASC",
+      ] as any,
+      raw: true,
+    });
+
+    res.status(200).json(stat);
   } catch (error: any) {
     res.status(500).send({
       message: error.message,
@@ -46,10 +115,52 @@ export const addStudnet = async (
       parent_name,
       parent_phone_number,
       image_url,
+      joinedAt: new Date(),
     });
 
     res.status(201).json({
       message: "Student added successfully",
+    });
+  } catch (error: any) {
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+// left student
+
+export const leftStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+
+    const newID = Number(id as string);
+
+    const foundedStudent = await Student.findByPk(newID);
+
+    if (!foundedStudent) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    await Student.update(
+      {
+        leftAt: new Date(),
+      },
+      {
+        where: {
+          id: newID,
+        },
+      },
+    );
+
+    res.status(201).json({
+      message: "left student",
     });
   } catch (error: any) {
     res.status(500).send({
@@ -75,6 +186,8 @@ export const updateStudnet = async (
       parent_name,
       parent_phone_number,
       image_url,
+      leftAt,
+      joinedAt,
     } = req.body as UpdateStudentDto;
 
     const newID = Number(id as string);
@@ -95,6 +208,8 @@ export const updateStudnet = async (
         parent_name,
         parent_phone_number,
         image_url,
+        leftAt,
+        joinedAt,
       },
       {
         where: {

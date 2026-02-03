@@ -14,6 +14,8 @@ export interface UpdateStudentDto {
   parent_name?: string;
   parent_phone_number?: string;
   image_url?: string;
+  leftAt?: Date;
+  joinedAt?: Date;
 }
 
 // export interface DeleteStudentDto {
