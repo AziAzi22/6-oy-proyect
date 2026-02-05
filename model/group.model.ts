@@ -1,57 +1,37 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/config.js";
+import { GroupValues } from "../enum/group.enum.js";
 
-export class Student extends Model {
-  full_name!: string;
-  phone_number!: string;
-  profession!: string;
-  parent_name!: string;
-  parent_phone_number!: string;
+export class Group extends Model {
+  title!: string;
+  days!: string;
+  time!: string;
   image_url!: string;
-  leftAt?: Date | null;
-  joinedAt!: Date;
   added_by!: number;
-  group_id!: number;
+  teacher_id!: number;
 }
 
-Student.init(
+Group.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    full_name: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    phone_number: {
-      type: DataTypes.STRING,
+    days: {
+      type: DataTypes.ENUM(...Object.values(GroupValues)),
       allowNull: false,
     },
-    profession: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    parent_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    parent_phone_number: {
+    time: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     image_url: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    leftAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
-    joinedAt: {
-      type: DataTypes.DATE,
       allowNull: false,
     },
     added_by: {
@@ -62,17 +42,17 @@ Student.init(
         key: "id",
       },
     },
-    group_id: {
+    teacher_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "group",
+        model: "teacher",
         key: "id",
       },
     },
   },
   {
-    tableName: "student",
+    tableName: "group",
     timestamps: true,
     sequelize,
   },

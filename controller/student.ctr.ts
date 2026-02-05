@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { Student } from "../model/student.model.js";
 import type { CreateStudentDto, UpdateStudentDto } from "../dto/student.dto.js";
 import { Op } from "sequelize";
 import sequelize from "../config/config.js";
+import { Student } from "../model/association.js";
 
 Student.sync({ force: false });
 
@@ -106,6 +106,8 @@ export const addStudnet = async (
       parent_name,
       parent_phone_number,
       image_url,
+      added_by,
+      group_id,
     } = req.body as CreateStudentDto;
 
     await Student.create({
@@ -116,6 +118,8 @@ export const addStudnet = async (
       parent_phone_number,
       image_url,
       joinedAt: new Date(),
+      added_by,
+      group_id,
     });
 
     res.status(201).json({
@@ -188,6 +192,8 @@ export const updateStudnet = async (
       image_url,
       leftAt,
       joinedAt,
+      added_by,
+      group_id,
     } = req.body as UpdateStudentDto;
 
     const newID = Number(id as string);
@@ -210,6 +216,8 @@ export const updateStudnet = async (
         image_url,
         leftAt,
         joinedAt,
+        added_by,
+        group_id,
       },
       {
         where: {

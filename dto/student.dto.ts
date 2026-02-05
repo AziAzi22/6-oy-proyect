@@ -5,6 +5,8 @@ export interface CreateStudentDto {
   parent_name: string;
   parent_phone_number: string;
   image_url: string;
+  added_by: number;
+  group_id: number;
 }
 
 export interface UpdateStudentDto {
@@ -16,8 +18,6 @@ export interface UpdateStudentDto {
   image_url?: string;
   leftAt?: Date;
   joinedAt?: Date;
+  added_by?: number;
+  group_id?: number;
 }
-
-// export interface DeleteStudentDto {
-//   id: number;
-// }

@@ -1,20 +1,15 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../config/config.js";
 
-export class Student extends Model {
+export class Teacher extends Model {
   full_name!: string;
   phone_number!: string;
   profession!: string;
-  parent_name!: string;
-  parent_phone_number!: string;
   image_url!: string;
-  leftAt?: Date | null;
-  joinedAt!: Date;
   added_by!: number;
-  group_id!: number;
 }
 
-Student.init(
+Teacher.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -33,25 +28,8 @@ Student.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    parent_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    parent_phone_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     image_url: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    leftAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: null,
-    },
-    joinedAt: {
-      type: DataTypes.DATE,
       allowNull: false,
     },
     added_by: {
@@ -60,19 +38,11 @@ Student.init(
       references: {
         model: "staff",
         key: "id",
-      },
-    },
-    group_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "group",
-        key: "id",
-      },
+      }
     },
   },
   {
-    tableName: "student",
+    tableName: "teacher",
     timestamps: true,
     sequelize,
   },
